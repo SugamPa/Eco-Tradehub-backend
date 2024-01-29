@@ -12,10 +12,13 @@ const cors = require("cors");
 
 const PORT = process.env.PORT || 3500;
 
-mongoose.connect(process.env.DATABASE_STRING, {
-  useNewURLParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(
+  "mongodb+srv://sugam:sugam123@cluster0.ijqzvbj.mongodb.net/?retryWrites=true&w=majority",
+  {
+    useNewURLParser: true,
+    useUnifiedTopology: true,
+  }
+);
 mongoose.connection
   .once("open", () => console.log("Connected to database..."))
   .on("error", (error) =>

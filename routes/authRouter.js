@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 function generateAccessToken(data) {
-  return jwt.sign(data, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "30m" });
+  return jwt.sign(data, "sugam123", { expiresIn: "30m" });
 }
 
 router.post("/register", (req, res) => {
@@ -55,10 +55,7 @@ router.post("/login", (req, res) => {
         // Check if password is correct
         if (bcrypt.compareSync(req.body.password, data.password)) {
           const access_token = generateAccessToken({ user_id: data["_id"] });
-          const refresh_token = jwt.sign(
-            { user_id: data["_id"] },
-            process.env.REFRESH_TOKEN_SECRET
-          );
+          const refresh_token = jwt.sign({ user_id: data["_id"] }, "sugam123");
           res.status(200).json({
             message: "Login successful",
             access_token: access_token,
@@ -75,7 +72,7 @@ router.post("/login", (req, res) => {
 router.post("/regenerateToken", (req, res) => {
   const refresh_token = req.body.refresh_token;
   if (refresh_token == null) return res.sendStatus(401);
-  jwt.verify(refresh_token, process.env.REFRESH_TOKEN_SECRET, (err, data) => {
+  jwt.verify(refresh_token, "sugam123", (err, data) => {
     if (err) return res.sendStatus(403);
     const access_token = generateAccessToken({ user_id: data.user_id });
     res.json({ access_token: access_token });
