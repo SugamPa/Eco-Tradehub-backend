@@ -10,14 +10,14 @@ function generateAccessToken(data) {
 router.post("/register", (req, res) => {
   // Validation
   if (!req.body.name || !req.body.email || !req.body.password) {
-    res.status(200).json({ message: "Please fill out all fields" });
+    res.status(400).json({ message: "Please fill out all fields" });
   } else {
     // Check if user already exists
     user.findOne({ email: req.body.email }, (err, data) => {
       if (err) {
         res.status(500).send(err);
       } else if (data) {
-        res.status(200).json({ message: "Email address already in use" });
+        res.status(400).json({ message: "Email address already in use" });
       } else {
         // Create new user
         hashedPassword = bcrypt.hashSync(req.body.password, 10);
@@ -43,14 +43,14 @@ router.post("/register", (req, res) => {
 router.post("/login", (req, res) => {
   // Validation
   if (!req.body.email || !req.body.password) {
-    res.status(200).json({ message: "Please fill out all fields" });
+    res.status(400).json({ message: "Please fill out all fields" });
   } else {
     // Check if user exists
     user.findOne({ email: req.body.email }, (err, data) => {
       if (err) {
         res.status(500).send(err);
       } else if (!data) {
-        res.status(200).json({ message: "Email address not found" });
+        res.status(404).json({ message: "Email address not found" });
       } else {
         // Check if password is correct
         if (bcrypt.compareSync(req.body.password, data.password)) {
@@ -65,7 +65,7 @@ router.post("/login", (req, res) => {
             refresh_token: refresh_token,
           });
         } else {
-          res.status(200).json({ message: "Incorrect password" });
+          res.status(401).json({ message: "Incorrect password" });
         }
       }
     });
