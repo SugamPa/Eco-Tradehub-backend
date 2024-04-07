@@ -4,6 +4,7 @@ const auth = require("./middleware/auth");
 const authRouter = require("./routes/authRouter");
 const userRouter = require("./routes/userRouter");
 const productRouter = require("./routes/productRouter");
+const imageRouter = require("./routes/imageRouter");
 
 const app = express();
 app.use(express.json());
@@ -32,6 +33,7 @@ app.get("/", (req, res) => res.json("Server is running..."));
 
 app.use("/api/auth", authRouter);
 app.use("/api/user", auth, userRouter);
+app.use("/api/image", auth, imageRouter);
 app.use("/api/product", auth, productRouter);
 
 app.listen(PORT, () => console.log(`Listening to port ${PORT}`));

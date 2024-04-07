@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 function generateAccessToken(data) {
-  return jwt.sign(data, "sugam123", { expiresIn: "30m" });
+  return jwt.sign(data, "sugam123");
 }
 
 router.post("/register", (req, res) => {
