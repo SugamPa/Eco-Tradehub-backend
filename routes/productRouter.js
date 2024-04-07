@@ -191,6 +191,7 @@ router.get("/comments", auth, async (req, res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
+            avatarUrl: user.avatarUrl,
           },
           commentText: comment.commentText,
           createdAt: comment.createdAt,
