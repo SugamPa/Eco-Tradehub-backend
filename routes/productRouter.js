@@ -72,7 +72,7 @@ router.post("/create", auth, async (req, res) => {
 
     const product = await Product.findById(savedProduct._id).populate({
       path: "userId",
-      select: "name email avatar",
+      select: "name email avatarUrl",
     });
     res.status(201).json({ message: "Product created successfully", product });
   } catch (err) {
@@ -84,7 +84,7 @@ router.get("/getProducts", async (req, res) => {
   try {
     const products = await Product.find().populate({
       path: "userId",
-      select: "name email avatar",
+      select: "name email avatarUrl",
     });
     res.json(products);
   } catch (err) {
@@ -98,7 +98,7 @@ router.get("/my", async (req, res) => {
   try {
     const products = await Product.find({ userId }).populate({
       path: "userId",
-      select: "name email avatar",
+      select: "name email avatarUrl",
     });
     res.json(products);
   } catch (err) {
