@@ -92,6 +92,20 @@ router.get("/getProducts", async (req, res) => {
   }
 });
 
+router.get("/my", async (req, res) => {
+  const userId = req.data.user_id;
+
+  try {
+    const products = await Product.find({ userId }).populate({
+      path: "userId",
+      select: "name email avatar",
+    });
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post("/comment", auth, async (req, res) => {
   const { id, commentText } = req.body;
 

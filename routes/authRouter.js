@@ -56,8 +56,11 @@ router.post("/login", (req, res) => {
         if (bcrypt.compareSync(req.body.password, data.password)) {
           const access_token = generateAccessToken({ user_id: data["_id"] });
           const refresh_token = jwt.sign({ user_id: data["_id"] }, "sugam123");
+
+          const { password, ...user } = data._doc;
           res.status(200).json({
             message: "Login successful",
+            user,
             access_token: access_token,
             refresh_token: refresh_token,
           });
