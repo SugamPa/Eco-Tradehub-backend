@@ -28,10 +28,8 @@ router.post("/register", (req, res) => {
         });
         newUser.save((err, data) => {
           if (err) {
-            console.log(err);
             res.status(500).send(err);
           } else {
-            console.log(data);
             res.status(200).json({ message: "Registered successfully" });
           }
         });

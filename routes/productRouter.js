@@ -92,11 +92,13 @@ router.get("/getProducts", async (req, res) => {
   }
 });
 
-router.get("/my", async (req, res) => {
+router.get("/my", auth, async (req, res) => {
   const userId = req.data.user_id;
 
   try {
-    const products = await Product.find({ userId }).populate({
+    const products = await Product.find({
+      userId: new ObjectId(userId),
+    }).populate({
       path: "userId",
       select: "name email avatarUrl",
     });
@@ -148,7 +150,6 @@ router.post("/comment", auth, async (req, res) => {
     };
     res.status(201).json({ message: "Comment added successfully", comment });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -200,7 +201,6 @@ router.get("/comments", auth, async (req, res) => {
         commentsToReturn.push(commentToPush);
       })
     );
-    console.log(commentsToReturn);
 
     res.status(200).json({
       comments: commentsToReturn,
@@ -209,7 +209,6 @@ router.get("/comments", auth, async (req, res) => {
       totalComments: totalCount,
     });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: "Internal server error" });
   }
 });
