@@ -4,6 +4,7 @@ const Product = require("../models/product");
 const Comment = require("../models/comment");
 const User = require("../models/user");
 const auth = require("../middleware/auth");
+const Purchase = require("../models/purchases");
 
 router.post("/create", auth, async (req, res) => {
   const {
@@ -103,6 +104,31 @@ router.get("/my", auth, async (req, res) => {
       select: "name email avatarUrl",
     });
     res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete("/delete", auth, async (req, res) => {
+  const { id } = req.body;
+  if (!id) {
+    return res.status(400).json({ message: "Product ID is required" });
+  }
+
+  try {
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    if (product.userId.toString() !== req.data.user_id) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to delete this product" });
+    }
+
+    await Product.findByIdAndDelete(id);
+    res.json({ message: "Product deleted" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -209,6 +235,49 @@ router.get("/comments", auth, async (req, res) => {
       totalComments: totalCount,
     });
   } catch (err) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.post("/buy", auth, async (req, res) => {
+  const { productId, quantity } = req.body;
+  if (!productId || !quantity) {
+    return res
+      .status(400)
+      .json({ message: "Please fill all the required fields!" });
+  }
+
+  const userId = req.data.user_id;
+  try {
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const total = product.price * quantity;
+    const purchaseData = {
+      userId: new ObjectId(userId),
+      productId: new ObjectId(productId),
+      quantity,
+      total,
+    };
+
+    await Purchase.create(purchaseData);
+    res.status(201).json({ message: "Purchase successful" });
+  } catch (err) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.get("/purchased", auth, async (req, res) => {
+  const userId = req.data.user_id;
+  try {
+    const purchases = await Purchase.find({
+      userId: new ObjectId(userId),
+    }).populate("productId");
+    res.status(200).json(purchases);
+  } catch (err) {
+    console.log(err);
     res.status(500).json({ message: "Internal server error" });
   }
 });
