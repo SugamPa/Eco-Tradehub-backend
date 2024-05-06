@@ -17,6 +17,19 @@ router.get("/getUserData", async (req, res) => {
   }
 });
 
+router.get("/:id/products", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const products = await Product.find({ userId: id }).populate({
+      path: "userId",
+      select: "name email phoneNumber avatarUrl",
+    });
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.delete("/deleteUser", async (req, res) => {
   const { user_id } = req.data;
   try {

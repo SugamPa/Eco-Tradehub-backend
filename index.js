@@ -5,6 +5,8 @@ const authRouter = require("./routes/authRouter");
 const userRouter = require("./routes/userRouter");
 const productRouter = require("./routes/productRouter");
 const imageRouter = require("./routes/imageRouter");
+const adminRouter = require("./routes/adminRouter");
+const studyRouter = require("./routes/studyRouter");
 
 const app = express();
 app.use(express.json());
@@ -32,8 +34,10 @@ app.use(cors({ origin: "*" }));
 app.get("/", (req, res) => res.json("Server is running..."));
 
 app.use("/api/auth", authRouter);
+app.use("/api/admin", adminRouter);
 app.use("/api/user", auth, userRouter);
-app.use("/api/image", auth, imageRouter);
+app.use("/api/image", imageRouter);
 app.use("/api/product", auth, productRouter);
+app.use("/api/study", studyRouter);
 
 app.listen(PORT, () => console.log(`Listening to port ${PORT}`));

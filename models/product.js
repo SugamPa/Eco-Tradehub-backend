@@ -22,6 +22,9 @@ const productSchema = new mongoose.Schema({
   longitude: {
     type: Number,
   },
+  quantity: {
+    type: Number,
+  },
   images: {
     type: [String],
   },

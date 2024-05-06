@@ -15,6 +15,7 @@ router.post("/create", auth, async (req, res) => {
     location,
     latitude,
     longitude,
+    quantity,
     price,
     images,
     negotiationType,
@@ -30,6 +31,7 @@ router.post("/create", auth, async (req, res) => {
     type,
     location,
     latitude,
+    quantity,
     images,
     longitude,
     price,
@@ -57,6 +59,7 @@ router.post("/create", auth, async (req, res) => {
       location,
       latitude,
       longitude,
+      quantity,
       images,
       warranty,
       price,
@@ -73,7 +76,7 @@ router.post("/create", auth, async (req, res) => {
 
     const product = await Product.findById(savedProduct._id).populate({
       path: "userId",
-      select: "name email avatarUrl",
+      select: "name email phoneNumber avatarUrl",
     });
     res.status(201).json({ message: "Product created successfully", product });
   } catch (err) {
@@ -85,7 +88,7 @@ router.get("/getProducts", async (req, res) => {
   try {
     const products = await Product.find().populate({
       path: "userId",
-      select: "name email avatarUrl",
+      select: "name email phoneNumber avatarUrl",
     });
     res.json(products);
   } catch (err) {
@@ -101,7 +104,7 @@ router.get("/my", auth, async (req, res) => {
       userId: new ObjectId(userId),
     }).populate({
       path: "userId",
-      select: "name email avatarUrl",
+      select: "name email phoneNumber avatarUrl",
     });
     res.json(products);
   } catch (err) {
@@ -167,6 +170,7 @@ router.post("/comment", auth, async (req, res) => {
         _id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
+        phoneNumber: user.phoneNumber,
         avatarUrl: user.avatarUrl,
         userType: user.userType,
       },
@@ -201,7 +205,7 @@ router.get("/comments", auth, async (req, res) => {
         .skip((page - 1) * limit)
         .limit(limit);
 
-      totalCount = await Comment.countDocuments({ productId: productId });
+      totalCount = product.comments.length;
     }
 
     if (!comments) {
@@ -212,12 +216,16 @@ router.get("/comments", auth, async (req, res) => {
     await Promise.all(
       comments.map(async (comment) => {
         const user = await User.findById(comment.commenter).exec();
+        if (!user) {
+          return;
+        }
         const commentToPush = {
           _id: comment._id,
           commenter: {
             _id: user._id,
             name: user.name,
             email: user.email,
+            phoneNumber: user.phoneNumber,
             avatarUrl: user.avatarUrl,
           },
           commentText: comment.commentText,
@@ -235,7 +243,8 @@ router.get("/comments", auth, async (req, res) => {
       totalComments: totalCount,
     });
   } catch (err) {
-    res.status(500).json({ message: "Internal server error" });
+    console.log(err);
+    res.status(500).json({ message: "Internal server error", comments: [] });
   }
 });
 

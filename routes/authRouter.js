@@ -9,7 +9,12 @@ function generateAccessToken(data) {
 
 router.post("/register", (req, res) => {
   // Validation
-  if (!req.body.name || !req.body.email || !req.body.password) {
+  if (
+    !req.body.name ||
+    !req.body.email ||
+    !req.body.phoneNumber ||
+    !req.body.password
+  ) {
     res.status(400).json({ message: "Please fill out all fields" });
   } else {
     // Check if user already exists
@@ -24,7 +29,9 @@ router.post("/register", (req, res) => {
         const newUser = new user({
           name: req.body.name,
           email: req.body.email,
+          phoneNumber: req.body.phoneNumber,
           password: hashedPassword,
+          avatarUrl: req.body.avatarUrl,
         });
         newUser.save((err, data) => {
           if (err) {
