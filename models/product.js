@@ -56,6 +56,10 @@ const productSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  sold: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const Product = mongoose.model("Post", productSchema);

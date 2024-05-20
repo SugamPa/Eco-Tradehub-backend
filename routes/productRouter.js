@@ -5,6 +5,7 @@ const Comment = require("../models/comment");
 const User = require("../models/user");
 const auth = require("../middleware/auth");
 const Purchase = require("../models/purchases");
+const mailSender = require("../utils/mailSender");
 
 router.post("/create", auth, async (req, res) => {
   const {
@@ -264,6 +265,7 @@ router.post("/buy", auth, async (req, res) => {
     }
 
     const total = product.price * quantity;
+
     const purchaseData = {
       userId: new ObjectId(userId),
       productId: new ObjectId(productId),
@@ -272,6 +274,19 @@ router.post("/buy", auth, async (req, res) => {
     };
 
     await Purchase.create(purchaseData);
+    product.sold = true;
+    await product.save();
+
+    const buyer = await User.findById(userId);
+    sendPurchasedMail(buyer.email, product.title, product.price, quantity);
+
+    const seller = await User.findById(product.userId);
+    sendSellerMail(
+      seller.email,
+      product.title,
+      `${buyer.firstName} ${buyer.lastName}`
+    );
+
     res.status(201).json({ message: "Purchase successful" });
   } catch (err) {
     res.status(500).json({ message: "Internal server error" });
@@ -290,5 +305,52 @@ router.get("/purchased", auth, async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+async function sendPurchasedMail(email, title, price, quantity) {
+  try {
+    const mailResponse = await mailSender(
+      email,
+      "Thank you for purchasing from Eco-TradeHub",
+      `<h1>${title}</h1>
+        <p>Thank you for purchasing from Eco-TradeHub. You are one step towards making a sustainable environment</p>
+        <p>Please find your receipt below:</p>
+        <p>Product: ${title}</p>
+        <p>Price: Rs ${price}</p>
+        <p>Quantity: ${quantity}</p>
+        <p>Total: Rs ${price * quantity}</p>
+        <p>Thank you for shopping with us!</p>
+
+        <p>Regards,</p>
+        <p>Eco-TradeHub Team</p>
+
+        <p>This is an auto-generated email. Please do not reply to this email.</p>
+      `
+    );
+    console.log("Email sent successfully: ", mailResponse);
+  } catch (error) {
+    console.log("Error occurred while sending email: ", error);
+    throw error;
+  }
+}
+
+async function sendSellerMail(email, title, buyerName) {
+  try {
+    const mailResponse = await mailSender(
+      email,
+      `Product ${title} Sold`,
+      `<p>Your product ${title} was purchased by ${buyerName}. You are one step towards making a sustainable environment</p>
+       
+        <p>Regards,</p>
+        <p>Eco-TradeHub Team</p>
+
+        <p>This is an auto-generated email. Please do not reply to this email.</p>
+      `
+    );
+    console.log("Email sent successfully: ", mailResponse);
+  } catch (error) {
+    console.log("Error occurred while sending email: ", error);
+    throw error;
+  }
+}
 
 module.exports = router;
